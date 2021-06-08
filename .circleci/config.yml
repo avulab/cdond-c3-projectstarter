@@ -51,7 +51,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-v2
+          key: frontend-build-{{ .BuildNum }}
 
   build-backend:
     docker:
@@ -59,7 +59,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [backend-build-{{ .BuildNum }}]
       - run:
           name: Back-end build
           command: |
@@ -68,7 +68,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-build-{{ .BuildNum }}
 
   test-frontend:
     docker:
@@ -76,7 +76,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build-v2]
+          keys: [frontend-build-{{ .BuildNum }}]
       - run:
           name: Test front-end
           command: |
@@ -84,7 +84,7 @@ jobs:
             npm run test
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-v2
+          key: frontend-build-{{ .BuildNum }}
 
                 
   test-backend:
@@ -93,7 +93,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [backend-build-{{ .BuildNum }}]
       - run:
           name: Back-end Test
           command: |
@@ -101,7 +101,7 @@ jobs:
             npm run test
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-build-{{ .BuildNum }}
             
   scan-frontend:
     docker:
@@ -109,7 +109,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build-v2]
+          keys: [frontend-build-{{ .BuildNum }}]
       - run:
           name: Scan front-end
           command: |
@@ -117,7 +117,7 @@ jobs:
             npm audit --audit-level=critical
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-v2
+          key: frontend-build-{{ .BuildNum }}
 
   scan-backend:
     docker:
@@ -125,7 +125,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [backend-build-{{ .BuildNum }}]
       - run:
           name: Back-end Scan
           command: |
@@ -133,7 +133,7 @@ jobs:
             npm audit --audit-level=critical
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-build-{{ .BuildNum }}
 
   deploy-infrastructure:
     docker:
