@@ -46,7 +46,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            cd ~/project/frontend
+            cd frontend
             npm install
             npm run build
       - save_cache:
@@ -63,7 +63,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            cd ~/project/backend
+            cd backend
             npm install
             npm run build
       - save_cache:
@@ -80,7 +80,8 @@ jobs:
       - run:
           name: Test front-end
           command: |
-            cd frontend && npm run test
+            cd frontend
+            npm run test
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -96,7 +97,8 @@ jobs:
       - run:
           name: Back-end Test
           command: |
-            cd backend && npm run test
+            cd backend
+            npm run test
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -111,7 +113,8 @@ jobs:
       - run:
           name: Scan front-end
           command: |
-            cd frontend && npm audit --audit-level=critical
+            cd frontend
+            npm audit --audit-level=critical
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -126,7 +129,8 @@ jobs:
       - run:
           name: Back-end Scan
           command: |
-            cd backend && npm audit --audit-level=critical
+            cd backend
+            npm audit --audit-level=critical
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
