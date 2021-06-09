@@ -31,8 +31,8 @@
 
 - name: Sync code to EC2
   synchronize:
-    src: ~/project
-    dest: ~
+    src: ~/project/backend
+    dest: ~/project
 
 - name: Executing node
   shell: |
