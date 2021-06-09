@@ -184,10 +184,6 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Setup known hosts
-          command: |
-            ssh-keyscan $(tail -1 .circleci/ansible/inventory.txt)|grep ssh-rsa >>~/.ssh/known_hosts
-      - run:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
