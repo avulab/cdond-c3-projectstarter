@@ -169,6 +169,14 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - run:
+          name: Print contents of inventory.txt
+          command: |
+            pwd
+            find . -name inventory.txt
+            cat project/.circleci/ansible/inventory.txt
+            echo Absolute path
+            cat ~/project/.circleci/ansible/inventory.txt
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"   
 
@@ -190,6 +198,8 @@ jobs:
       - run:
           name: Configure server
           command: |
+            pwd
+            find . -name inventory.txt
             ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
@@ -201,6 +211,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            cd backend
             npm run migrations >/tmp/migration.log
       - run:
           name: Send migration results to memstash
@@ -226,7 +237,9 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            npm run build && aws s3 cp ./dist s3://udapeople-kk1j287dhjppmz786/ --recursive
+            cd frontend
+            npm run build
+            aws s3 cp ./dist s3://udapeople-kk1j287dhjppmz786/ --recursive
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"                  
   deploy-backend:

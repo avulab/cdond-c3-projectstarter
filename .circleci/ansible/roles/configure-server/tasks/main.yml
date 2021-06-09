@@ -28,10 +28,11 @@
     global: yes
     production: yes
     state: present
-- name: Sync code to EC2
-  ansible.posix.synchronize:
-    src: ~/project
-    dest: ~
+    
+#- name: Sync code to EC2
+#  ansible.posix.synchronize:
+#    src: ~/project
+#    dest: ~
 
 - name: Executing node
   shell: |
