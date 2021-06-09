@@ -168,21 +168,13 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      - run:
-          name: Print contents of inventory.txt
-          command: |
-            pwd
-            find . -name inventory.txt
-            cat project/.circleci/ansible/inventory.txt
-            echo Absolute path
-            cat ~/project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"   
 
   configure-infrastructure:
     docker:
-      - image: contentwisetv/ansible-aws #cimg/python:3.9.5
+      - image: contentwisetv/ansible-aws
     steps:
       - checkout
       - add_ssh_keys:
@@ -198,9 +190,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            pwd
-            find . -name inventory.txt
-            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
   run-migrations:
@@ -212,11 +202,11 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm run migrations >/tmp/migration.log
+            npm run migrations >migration.log
       - run:
           name: Send migration results to memstash
           command: |
-            grep -q "has been executed successfully" /tmp/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            grep -q "has been executed successfully" backend/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
   deploy-frontend:
@@ -239,7 +229,7 @@ jobs:
           command: |
             cd frontend
             npm run build
-            aws s3 cp ./dist s3://udapeople-kk1j287dhjppmz786/ --recursive
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"                  
   deploy-backend:
@@ -260,7 +250,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
