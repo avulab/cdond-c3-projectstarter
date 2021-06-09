@@ -1,13 +1,4 @@
 ---
-environment:
-  ENVIRONMENT=production
-  TYPEORM_CONNECTION=postgres
-  TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
-  TYPEORM_HOST=glee.c16a6detkaax.us-west-2.rds.amazonaws.com
-  TYPEORM_PORT=5432
-  TYPEORM_USERNAME=postgres
-  TYPEORM_PASSWORD=password
-  TYPEORM_DATABASE=glee
 - name: "update apt packages."
   become: yes
   apt:
@@ -37,3 +28,20 @@ environment:
     global: yes
     production: yes
     state: present
+- name: Sync code to EC2
+  ansible.posix.synchronize:
+    src: ~/project
+    dest: ~
+
+- name: Executing node
+  shell: |
+    pm2 start ~/project/backend/dist/main.js -f
+  environment:
+    ENVIRONMENT=production
+    TYPEORM_CONNECTION=postgres
+    TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+    TYPEORM_HOST=glee.c16a6detkaax.us-west-2.rds.amazonaws.com
+    TYPEORM_PORT=5432
+    TYPEORM_USERNAME=postgres
+    TYPEORM_PASSWORD=password
+    TYPEORM_DATABASE=glee

@@ -174,7 +174,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: cimg/python:3.9.5
+      - image: contentwisetv/ansible-aws #cimg/python:3.9.5
     steps:
       - checkout
       - add_ssh_keys:
@@ -183,15 +183,16 @@ jobs:
             - "fb:d3:a8:e8:e0:8b:f6:e5:46:4c:d6:c4:ad:a2:e6:5b"
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
+      #- run:
+      #    name: Install dependencies
+      #    command: |
+      #      apk add --update ansible
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i inventory.txt configure=server.yml
-      - destroy-environment 
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -205,7 +206,8 @@ jobs:
           name: Send migration results to memstash
           command: |
             grep -q "has been executed successfully" /tmp/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-      - destroy-environment 
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
@@ -225,7 +227,8 @@ jobs:
           name: Deploy frontend objects
           command: |
             npm run build && aws s3 cp ./dist s3://udapeople-kk1j287dhjppmz786/ --recursive
-      - destroy-environment                  
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"                  
   deploy-backend:
     docker:
       - image: cimg/python:3.9.5
@@ -245,7 +248,8 @@ jobs:
           name: Deploy backend
           command: |
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment  
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
   smoke-test:
     docker:
@@ -275,8 +279,10 @@ jobs:
             else
             return 0
             fi
-      - revert-migrations
-      - destroy-environment
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   cloudfront-update:
     docker:
@@ -295,8 +301,10 @@ jobs:
               --tags project=BalakrishnaAvula \
               --stack-name "cloudfront-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations
-      - destroy-environment  
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
   cleanup:
     docker:
