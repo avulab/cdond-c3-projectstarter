@@ -36,6 +36,7 @@
 
 - name: Executing node
   shell: |
+    find . -name main.js
     pm2 start ~/project/backend/dist/main.js -f
   environment:
     ENVIRONMENT=production
