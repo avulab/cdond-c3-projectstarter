@@ -215,10 +215,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get -qq install awscli
-      - run:
           name: Run migrations
           command: |
             cd backend
@@ -228,8 +224,6 @@ jobs:
           name: Send migration results to memstash
           command: |
             grep -q "has been executed successfully" backend/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-      - destroy-environment:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
       - revert-migrations:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -260,7 +254,7 @@ jobs:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"    
-                        
+
   deploy-backend:
     docker:
       - image: contentwisetv/ansible-aws
