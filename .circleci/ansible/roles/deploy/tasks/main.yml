@@ -9,6 +9,6 @@
     npm install
     npm run build
 - name: Executing node
--  shell: |
-     cd ~/project/backend/dist
--    pm2 start main.js -f
+  shell: |
+    cd ~/project/backend/dist
+    pm2 start main.js -f
