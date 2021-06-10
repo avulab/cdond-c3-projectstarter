@@ -1,5 +1,5 @@
 ---
 - name: Sync code to EC2
   synchronize:
-    src: ~/backend
-    dest: ~
+    src: ~/project/backend
+    dest: ~/project
