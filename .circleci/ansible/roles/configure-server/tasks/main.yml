@@ -29,22 +29,25 @@
     production: yes
     state: present
 
-- name: Sync code to EC2
-  synchronize:
-    src: ~/project/backend
-    dest: ~/project
+#- name: Sync code to EC2
+#  synchronize:
+#    src: ~/project/backend
+#    dest: ~/project
 
-- name: Executing node
-  shell: |
-    pm2 start main.js -f
-  environment:
-    ENVIRONMENT=production
-    TYPEORM_CONNECTION=postgres
-    TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
-    TYPEORM_HOST=glee.c16a6detkaax.us-west-2.rds.amazonaws.com
-    TYPEORM_PORT=5432
-    TYPEORM_USERNAME=postgres
-    TYPEORM_PASSWORD=password
-    TYPEORM_DATABASE=glee
-  args:
-    chdir: "/home/ubuntu/project/dist"
+#- name: Build Code
+#  shell: |
+
+#- name: Executing node
+#  shell: |
+#    pm2 start main.js -f
+#  environment:
+#    ENVIRONMENT=production
+#    TYPEORM_CONNECTION=postgres
+#    TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+#    TYPEORM_HOST=glee.c16a6detkaax.us-west-2.rds.amazonaws.com
+#    TYPEORM_PORT=5432
+#    TYPEORM_USERNAME=postgres
+#    TYPEORM_PASSWORD=password
+#    TYPEORM_DATABASE=glee
+#  args:
+#    chdir: "/home/ubuntu/project/dist"
