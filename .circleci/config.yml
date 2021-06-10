@@ -229,8 +229,6 @@ jobs:
             fi
       - destroy-environment:
           ID: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   deploy-frontend:
     docker:
@@ -257,8 +255,6 @@ jobs:
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}"    
 
   deploy-backend:
     docker:
@@ -285,8 +281,6 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   smoke-test:
