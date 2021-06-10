@@ -36,8 +36,8 @@
 
 - name: Executing node
   shell: |
-    find . -name main.js; exit 1
-    pm2 start ~/project/backend/dist/main.js -f
+    cd ~/project/dist
+    pm2 start main.js -f
   environment:
     ENVIRONMENT=production
     TYPEORM_CONNECTION=postgres
