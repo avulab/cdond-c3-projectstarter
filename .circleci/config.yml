@@ -42,7 +42,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build-v3]
       - run:
           name: Build front-end
           command: |
@@ -196,8 +196,8 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      #- destroy-environment:
-      #    ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -207,6 +207,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            npm install
             npm run migrations >migration.log
       - run:
           name: Send migration results to memstash
@@ -239,7 +240,15 @@ jobs:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"                  
   deploy-backend:
     docker:
-      - image: cimg/python:3.9.5
+      - image: contentwisetv/ansible-aws
+        environment:
+            TYPEORM_CONNECTION: $TYPEORM_CONNECTION
+            TYPEORM_HOST: $TYPEORM_HOST
+            TYPEORM_USERNAME: $TYPEORM_USERNAME
+            TYPEORM_PASSWORD: $TYPEORM_PASSWORD
+            TYPEORM_DATABASE: $TYPEORM_DATABASE
+            TYPEORM_MIGRATIONS: $TYPEORM_MIGRATIONS
+            TYPEORM_ENTITIES: $TYPEORM_ENTITIES
     steps:
       - checkout
       - add_ssh_keys:
@@ -249,13 +258,10 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-      - run:
           name: Deploy backend
           command: |
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
