@@ -36,7 +36,6 @@
 
 - name: Executing node
   shell: |
-    cd ~/project/backend/dist
     pm2 start main.js -f
   environment:
     ENVIRONMENT=production
@@ -47,3 +46,5 @@
     TYPEORM_USERNAME=postgres
     TYPEORM_PASSWORD=password
     TYPEORM_DATABASE=glee
+  args:
+    chdir: "/home/ubuntu/project/dist"
