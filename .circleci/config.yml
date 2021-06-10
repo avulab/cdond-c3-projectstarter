@@ -217,7 +217,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pip install awscli
+            sudo apt-get -qq install awscli
       - run:
           name: Run migrations
           command: |
@@ -230,6 +230,8 @@ jobs:
             grep -q "has been executed successfully" backend/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   deploy-frontend:
     docker:
@@ -239,6 +241,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs            
       - run:
           name: Get backend url
@@ -250,9 +253,12 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend
+            npm install
             npm run build
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
       - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"                  
   deploy-backend:
     docker:
@@ -279,7 +285,9 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}"  
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   smoke-test:
     docker:
