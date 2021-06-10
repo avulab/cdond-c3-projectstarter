@@ -223,7 +223,12 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
-            grep -q "has been executed successfully" backend/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            if grep -q "has been executed successfully" backend/migration.log 
+            then
+              curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            fi
+      - destroy-environment:
+          ID: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
