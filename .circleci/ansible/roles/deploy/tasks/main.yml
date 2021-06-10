@@ -3,3 +3,12 @@
   synchronize:
     src: ~/project/backend
     dest: ~/project
+- name: Back-end build
+  command: |
+    cd ~/project/backend
+    npm install
+    npm run build
+- name: Executing node
+-  shell: |
+     cd ~/project/backend/dist
+-    pm2 start main.js -f
