@@ -178,6 +178,7 @@ jobs:
         environment:
             TYPEORM_CONNECTION: $TYPEORM_CONNECTION
             TYPEORM_HOST: $TYPEORM_HOST
+            TYPEORM_PORT: $TYPEORM_PORT
             TYPEORM_USERNAME: $TYPEORM_USERNAME
             TYPEORM_PASSWORD: $TYPEORM_PASSWORD
             TYPEORM_DATABASE: $TYPEORM_DATABASE
@@ -198,12 +199,14 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
         environment:
               TYPEORM_CONNECTION: $TYPEORM_CONNECTION
               TYPEORM_HOST: $TYPEORM_HOST
+              TYPEORM_PORT: $TYPEORM_PORT
               TYPEORM_USERNAME: $TYPEORM_USERNAME
               TYPEORM_PASSWORD: $TYPEORM_PASSWORD
               TYPEORM_DATABASE: $TYPEORM_DATABASE
@@ -211,6 +214,10 @@ jobs:
               TYPEORM_ENTITIES: $TYPEORM_ENTITIES
     steps:
       - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install awscli
       - run:
           name: Run migrations
           command: |
@@ -223,6 +230,7 @@ jobs:
             grep -q "has been executed successfully" backend/migration.log && curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
+
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
