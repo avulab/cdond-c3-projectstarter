@@ -168,9 +168,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      - destroy-environment:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}"   
+            - project/.circleci/ansible/inventory.txt 
 
   configure-infrastructure:
     docker:
@@ -197,8 +195,6 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
   run-migrations:
     docker:
@@ -227,8 +223,6 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
-      - destroy-environment:
-          ID: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
@@ -253,8 +247,6 @@ jobs:
             npm install
             npm run build
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
-      - destroy-environment:
-          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   deploy-backend:
     docker:
