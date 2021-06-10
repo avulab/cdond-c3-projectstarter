@@ -4,7 +4,7 @@
     src: ~/project/backend
     dest: ~/project
 - name: Back-end build
-  command: |
+  shell: |
     cd ~/project/backend
     npm install
     npm run build
