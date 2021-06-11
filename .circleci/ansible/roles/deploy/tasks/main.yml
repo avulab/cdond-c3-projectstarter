@@ -10,5 +10,5 @@
     npm run build
 - name: Executing node
   shell: |
-    cd ~/project/backend/dist
-    pm2 start main.js -f
+    cd ~/project/backend
+    npm start:prod
