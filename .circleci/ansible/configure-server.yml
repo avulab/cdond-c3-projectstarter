@@ -21,7 +21,7 @@
     - name: "wait 600 seconds for target connection to become reachable/usable."
       wait_for_connection:
 
-    - name: "install python for Ansible."
-      raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
+#    - name: "install python for Ansible."
+#      raw: sudo bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qy python-minimal)"
   roles:
     - configure-server
