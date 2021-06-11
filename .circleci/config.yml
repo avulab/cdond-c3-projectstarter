@@ -25,7 +25,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          when: on_success
+          when: on_fail
           command: |
             SUCCESS=$(curl -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
             if(( $SUCCESS==1 )); 
@@ -169,6 +169,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt 
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   configure-infrastructure:
     docker:
@@ -195,7 +197,9 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+  
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
@@ -223,7 +227,11 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
-
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
@@ -244,7 +252,11 @@ jobs:
             npm install
             npm run build
             aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
-
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+  
   deploy-backend:
     docker:
       - image: contentwisetv/ansible-aws
@@ -270,6 +282,10 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   smoke-test:
     docker:
@@ -291,11 +307,11 @@ jobs:
           name: Frontend smoke test.
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
-            curl -s ${URL} | grep "Welcome"
-      #- destroy-environment:
-      #    ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-      #- revert-migrations:
-      #    ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+            curl -s ${URL} | grep "Welcome-INITIATE-FAILURE"
+      - destroy-environment:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          ID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   cloudfront-update:
     docker:
@@ -308,7 +324,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --tags project=BalakrishnaAvula \
-              --stack-name "cloudfront-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "uadcity-cloudfront" \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment:
           ID: "${CIRCLE_WORKFLOW_ID:0:7}"  
@@ -323,19 +339,16 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
+            export STACKS=($(aws cloudformation list-stacks --stack-status-filter CREATE_COMPLETE --query "StackSummaries[*].StackName" --no-paginate --output text)) 
       - run:
           name: Remove old stacks and files
           command: |
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-            aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-            aws cloudformation delete-stack --stack-name "udapeople-frontend  -${OldWorkflowID}"
+            aws cloudformation delete-stack --stack-name "backend-${OldWorkflowID}"
             aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+            aws cloudformation delete-stack --stack-name "frontend-${OldWorkflowID}"
             fi
             
 workflows:
