@@ -11,4 +11,4 @@
 - name: Executing node
   shell: |
     cd ~/project/backend
-    npm start:prod
+    npm start
