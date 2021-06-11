@@ -235,14 +235,11 @@ jobs:
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs            
       - run:
-          name: Get backend url
+          name: Get backend url and deploy frontend objects
           command: |
             BACKEND_IP=$(curl -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request GET https://api.memstash.io/values/backendURL)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-      - run:
-          name: Deploy frontend objects
-          command: |
             cd frontend
             npm install
             npm run build
