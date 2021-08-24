@@ -1,0 +1,330 @@
+Parameters:
+  vpcCIDR:
+    Type: String
+    Default: "10.0.0.0/16"
+  net1CIDR:
+    Type: String
+    Default: "10.0.1.0/24"
+  net2CIDR:
+    Type: String
+    Default: "10.0.2.0/24"
+  net3CIDR:
+    Type: String
+    Default: "10.0.3.0/24"
+  net4CIDR:
+    Type: String
+    Default: "10.0.4.0/24"
+  imageID:
+    Type: String
+    Default: ami-02701bcdc5509e57b
+Resources:
+  Project2VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref vpcCIDR
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: Project2
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: false
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      VpcId: !Ref Project2VPC
+      CidrBlock: !Ref net1CIDR
+      Tags:
+        - Key: Name
+          Value: Project2
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: false
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: ""
+      VpcId: !Ref Project2VPC
+      CidrBlock: !Ref net2CIDR
+      Tags:
+        - Key: Name
+          Value: Project2
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: 
+        Fn::Select: 
+          - 0
+          - Fn::GetAZs: ""
+      VpcId: !Ref Project2VPC
+      CidrBlock: !Ref net3CIDR
+      Tags:
+        - Key: Name
+          Value: Project2
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      MapPublicIpOnLaunch: true
+      AvailabilityZone: 
+        Fn::Select: 
+          - 1
+          - Fn::GetAZs: ""
+      VpcId: !Ref Project2VPC
+      CidrBlock: !Ref net4CIDR
+      Tags:
+        - Key: Name
+          Value: Project2
+  NatGateway1:
+    Type: AWS::EC2::NatGateway
+    Properties: 
+      AllocationId: 
+        Fn::GetAtt:
+        - EIP1
+        - AllocationId
+      SubnetId: !Ref PublicSubnet1
+      Tags: 
+        - Key: Name
+          Value: Project2
+  NatGateway2:
+    Type: AWS::EC2::NatGateway
+    Properties: 
+      AllocationId: 
+        Fn::GetAtt:
+        - EIP2
+        - AllocationId
+      SubnetId: !Ref PublicSubnet2
+      Tags: 
+        - Key: Name
+          Value: Project2
+  EIP1:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: Project2
+  EIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: Project2
+  PublicRoutes:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Project2VPC
+  PrivateRoutes1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Project2VPC
+  PrivateRoutes2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref Project2VPC
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRoutes
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGate
+  PrivateRoute1:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRoutes1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway1
+  PrivateRoute2:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PrivateRoutes2
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NatGateway2
+  AsssignRouteTable1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref PublicRoutes
+      SubnetId: !Ref PublicSubnet1
+  AsssignRouteTable2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref PublicRoutes
+      SubnetId: !Ref PublicSubnet2
+  AsssignRouteTable3:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref PrivateRoutes1
+      SubnetId: !Ref PrivateSubnet1
+  AsssignRouteTable4:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: 
+      RouteTableId: !Ref PrivateRoutes2
+      SubnetId: !Ref PrivateSubnet2
+  ProfileWithRolesForOurApp:
+    Type: AWS::IAM::InstanceProfile
+    Properties: 
+      Roles:
+        - !Ref RoleforS3andSSMAccess
+  RoleforS3andSSMAccess:
+      Type: "AWS::IAM::Role"
+      Properties:
+        RoleName: "Ec2RoleForS3Access"
+        Description: "EC2 IAM role for S3 access"
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Service:
+                  - "ec2.amazonaws.com"
+              Action:
+                - "sts:AssumeRole"
+        ManagedPolicyArns:
+          - "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+          - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        Policies: []
+        Tags:
+        - Key: Name
+          Value: Project2
+  ServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: ServerSecurityGroup
+      GroupDescription: "Security Group for EC2 instances fronted by load balancer"
+      VpcId: !Ref Project2VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Project2
+  LoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: LoadBalancerSecurityGroup
+      GroupDescription: "Security Group for load balancer"
+      VpcId: !Ref Project2VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Project2
+  UbuntuLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      LaunchConfigurationName: UbuntuServerLaunchConfig
+      AssociatePublicIpAddress: false
+      IamInstanceProfile: !Ref ProfileWithRolesForOurApp
+      ImageId: !Ref imageID
+      EbsOptimized: false
+      InstanceMonitoring: false
+      InstanceType: t2.medium
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sdk"
+          Ebs:
+            VolumeSize: 10
+      SecurityGroups:
+        - !Ref ServerSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          apt-get update -y
+          apt-get install unzip awscli -y
+          apt-get install apache2 -y
+          systemctl start apache2.service
+          cd /var/www/html
+          aws s3 cp s3://udacity-demo-1/udacity.zip .
+          unzip -o udacity.zip
+  ServerAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: 
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      LaunchConfigurationName: !Ref UbuntuLaunchConfiguration
+      MaxSize: 4
+      MinSize: 2
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 300
+      TargetGroupARNs: 
+        - !Ref targetgroup
+      Tags:
+        - Key: Name
+          Value: Project2
+          PropagateAtLaunch: True
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties: 
+      SecurityGroups: 
+        - !Ref LoadBalancerSecurityGroup
+      Subnets:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+    DependsOn: IGateAttachment
+  LoadBalancerListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties: 
+      DefaultActions: 
+        - Type: forward
+          TargetGroupArn:
+            Ref: targetgroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: "HTTP"
+  listenerrule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties: 
+      Actions: 
+        - Type: forward
+          TargetGroupArn:
+            Ref: targetgroup
+      Conditions: 
+        - Field: path-pattern
+          Values: [/]
+      ListenerArn: !Ref LoadBalancerListener
+      Priority: 1
+  targetgroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties: 
+      VpcId: !Ref Project2VPC
+      Protocol: HTTP
+      Port: 80
+      Tags:
+        - Key: Name
+          Value: Project2
+  IGate:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Project2
+  IGateAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Project2VPC
+      InternetGatewayId: !Ref IGate
+Outputs: 
+  LoadBalancerURL:
+    Description: "URL fronted by load balancer"
+    Value: !GetAtt LoadBalancer.DNSName
+    Export:
+      Name: !Sub "${AWS::StackName}-URL"

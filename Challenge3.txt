@@ -1,0 +1,31 @@
+VPC ID
+Private Subnet 1 ID
+
+EC2
+~~~
+AMI ID ami-013400284c3b666b4
+t2.micro
+
+Security Group
+~~~~~~~~~~~~
+Ingress HTTP
+
+IAM Role
+~~~~~~~
+EC2 Session Manager
+
+Instance Profile
+~~~~~~~~~~~~~
+
+Parameters
+~~~~~~~~~~
+
+Export using SSN
+
+aws ssm put-parameter --name myEC2Type --type String --value “t2.micro”
+
+Import using SSN
+
+aws cloudformation create-stack --stack-name challenge3 --template-body file://challenge3-solution.yml 
+--capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM"
+	

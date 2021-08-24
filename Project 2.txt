@@ -1,0 +1,45 @@
+Project 2
+~~~~~~~~~
+
+Launch Configuration
+4 servers (Auto Scaling, 2 vCPU, 4GB RAM, 10GB storage, Ubuntu 18,IAM Role to access S3 Service,IAM Role to access session manager, t3.small)	
+2 private subnets
+
+Security Group (HTTP inbound and All outbound)
+Load Balancer (Health Check on HTTP, HTTP Inbound for all and HTTP to internal servers)
+Output - Export Public URL Of load balancer in http://<load balancer>	
+
+Bonus
+~~~~~
+AWS Parameter Store to store sensitive data like passwords
+CloudWatch Alarms
+CloudWatch Metrics
+
+
+UK VPC
+10.0.0.0/16
+
+Public Subnet England
+10.0.0.0/24
+
+Private Subnet Scotland
+10.0.1.0/24
+
+
+
+VPC -> Subnet in each AZ -> IGateway -> Route to Gateway
+
+#!/bin/bash
+apt-get update -y
+apt-get install unzip awscli -y
+apt-get install apache2 -y
+systemctl start apache2.service
+cd /var/www/html
+aws s3 cp s3://udacity-demo-1/udacity.zip .
+unzip -o udacity.zip
+
+
+==commands ==
+
+aws cloudformation delete-stack --stack-name project2
+aws cloudformation create-stack --stack-name project2 --template-body file://project2.yml --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM

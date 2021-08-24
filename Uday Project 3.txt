@@ -1,0 +1,17 @@
+udapeople-kk1j287dhjppmz786
+aws cloudformation deploy --template-file cloudfront.yml --stack-name BalakrishnaAvula	--parameter-overrides   WorkflowID=kk1j287dhjppmz786
+
+curl -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+curl -H "token: 68e4bc42-25a8-415a-b566-08c69a85f96a" --request GET https://api.memstash.io/values/backendURL
+
+yum -y install nodejs with amazon/aws-cli or 
+
+apk add --no-cache nodejs
+            apk add --no-cache npm
+            apk add --no-cache bash
+            apk add --no-cache curl
+            pip install awscli with python:3.7-
+
+Answers at https://github.com/Ankhi-Banerjee/Test-Project/blob/master/.circleci/config.yml#L312
+
+cKew4RKWfTZ5HiGg75aY
