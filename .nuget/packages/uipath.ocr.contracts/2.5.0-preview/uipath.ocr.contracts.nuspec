@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>UiPath.OCR.Contracts</id>
+    <version>2.5.0-preview</version>
+    <title>UiPath OCR Contracts</title>
+    <authors>UiPath</authors>
+    <owners>UiPath</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://www.uipath.com/hubfs/legalspot/UiPath_MSSA.pdf</licenseUrl>
+    <projectUrl>https://docs.uipath.com/activities/docs/about-the-ui-automation-activities-pack</projectUrl>
+    <iconUrl>https://download.uipath.com/UI_icon.png?ocr-contracts</iconUrl>
+    <description>The UiPath.OCR.Contracts package contains the contracts needed to develop new OCR engines.</description>
+    <dependencies />
+  </metadata>
+</package>

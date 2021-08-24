@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>UiPath.Vision</id>
+    <version>2.0.2-preview</version>
+    <title>UiPath Vision</title>
+    <authors>UiPath</authors>
+    <owners>UiPath</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://www.uipath.com/hubfs/legalspot/UiPath_MSSA.pdf</licenseUrl>
+    <projectUrl>https://docs.uipath.com/activities/docs/about-the-ui-automation-activities-pack</projectUrl>
+    <iconUrl>https://download.uipath.com/UI_icon.png?vision</iconUrl>
+    <description>The UiPath Vision pack contains OCR engines and libraries that are necessary for UI automation.
+This pack contains no activities in itself, but is necessary if you want to use OCR, Computer Vision, or any other type of UI automation in general.</description>
+    <dependencies>
+      <dependency id="UiPath.OCR.Contracts" version="2.5.0-preview" />
+    </dependencies>
+    <references>
+      <reference file="UiPath.Vision.Core.dll" />
+      <reference file="UiPath.Vision.dll" />
+    </references>
+  </metadata>
+</package>

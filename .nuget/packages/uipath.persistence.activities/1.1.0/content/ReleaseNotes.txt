@@ -1,0 +1,1 @@
+﻿https://docs.uipath.com/releasenotes/docs/uipath-persistence-activities

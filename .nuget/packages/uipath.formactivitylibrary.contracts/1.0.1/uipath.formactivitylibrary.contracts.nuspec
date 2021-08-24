@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>UiPath.FormActivityLibrary.Contracts</id>
+    <version>1.0.1</version>
+    <title>UiPath.FormActivityLibrary.Contracts</title>
+    <authors>UiPath</authors>
+    <owners>UiPath</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://www.uipath.com/hubfs/legalspot/UiPath_EULA.pdf</licenseUrl>
+    <projectUrl>https://docs.uipath.com/activities/docs/form-activity</projectUrl>
+    <iconUrl>https://download.uipath.com/UI_icon.png</iconUrl>
+    <description>UiPath FormActivityLibrary Contracts</description>
+    <dependencies />
+  </metadata>
+</package>
